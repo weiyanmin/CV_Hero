@@ -176,3 +176,102 @@ export async function parsePDFWithGemini(buffer: Buffer): Promise<string> {
     throw new Error("Failed to parse PDF with Gemini: " + e.message);
   }
 }
+
+export interface CoverLetterData {
+  applicantName: string;
+  companyName: string;
+  jobTitle: string;
+  date: string;
+  greeting: string;
+  paragraphs: string[];  // 3-4 focused paragraphs
+  closing: string;       // e.g. "Sincerely,"
+}
+
+export async function generateCoverLetter(cvText: string, jobDescription: string): Promise<CoverLetterData> {
+  if (!apiKey) {
+    throw new Error("Gemini API Key is missing. Please configure it.");
+  }
+
+  // Same model array as optimizeCV
+  const modelsToTry = ["gemini-2.5-flash"];
+
+  let lastError = null;
+
+  const currentDate = new Date().toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  const prompt = `
+    You are an expert cover letter writer. Your task is to generate a professional, compelling cover letter based on the provided CV and job description.
+
+    CRITICAL INSTRUCTIONS:
+    1. Extract the company name and job title from the job description.
+    2. Write 3-4 concise, focused paragraphs:
+       - Opening paragraph: Express genuine interest in the specific role. Mention the job title and company name.
+       - Body paragraph(s) (1-2): Match SPECIFIC skills and experiences from the CV to the job requirements. Use concrete examples and achievements that are ACTUALLY present in the CV. Draw direct connections between what the job asks for and what the candidate has done.
+       - Closing paragraph: Express enthusiasm for the opportunity, mention availability for an interview, and thank the reader.
+    3. ABSOLUTELY CRITICAL: NEVER invent, fabricate, or hallucinate qualifications, projects, metrics, certifications, or experiences that are NOT explicitly stated in the CV. Only reference things that are actually in the CV.
+    4. Keep the letter concise — suitable for one page. Each paragraph should be 2-4 sentences.
+    5. Use a professional but natural, authentic tone. Avoid clichés and overly generic phrases.
+    6. Set the applicantName from the CV.
+    7. Set the date to: ${currentDate}
+    8. Use "Dear Hiring Manager," as the greeting unless a specific hiring manager name is mentioned in the job description.
+    9. Use "Sincerely," as the closing.
+
+    Return ONLY a valid JSON object matching the following structure (do not include markdown code blocks like \`\`\`json):
+
+    {
+      "applicantName": "Full Name from CV",
+      "companyName": "Company Name from Job Description",
+      "jobTitle": "Job Title from Job Description",
+      "date": "${currentDate}",
+      "greeting": "Dear Hiring Manager,",
+      "paragraphs": [
+        "Opening paragraph...",
+        "Body paragraph 1...",
+        "Body paragraph 2 (optional)...",
+        "Closing paragraph..."
+      ],
+      "closing": "Sincerely,"
+    }
+
+    Here is the CV text:
+    ${cvText}
+
+    Here is the job description:
+    ${jobDescription}
+  `;
+
+  for (const modelName of modelsToTry) {
+    try {
+      console.log(`[Cover Letter] Attempting with model: ${modelName}`);
+      const model = genAI.getGenerativeModel({ model: modelName });
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const textOutput = response.text();
+
+      console.log("Gemini Cover Letter Raw Output:", textOutput);
+
+      // Robust JSON extraction (same pattern as optimizeCV)
+      const jsonMatch = textOutput.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error("No JSON found in response");
+      }
+
+      const cleanedOutput = jsonMatch[0];
+      return JSON.parse(cleanedOutput) as CoverLetterData;
+
+    } catch (error: any) {
+      console.warn(`Model ${modelName} failed:`, error.message);
+      lastError = error;
+      // Continue to next model
+    }
+  }
+
+  // If we get here, all models failed
+  console.error("All Gemini cover letter generation attempts failed.");
+  throw new Error(`AI processing failed after retries: ${lastError?.message || "Unknown error"}`);
+}

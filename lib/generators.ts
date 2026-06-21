@@ -1,5 +1,5 @@
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, TabStopPosition, TabStopType } from "docx";
-import { CVData } from "./gemini";
+import { CVData, CoverLetterData } from "./gemini";
 
 export const generateDOCX = async (data: CVData, headingColor: string = "#000000"): Promise<Blob> => {
     // Strip # from hex color for docx
@@ -176,3 +176,91 @@ function createSectionHeading(text: string, colorHex: string): Paragraph {
         spacing: { before: 200, after: 200 },
     });
 }
+
+export const generateCoverLetterDOCX = async (data: CoverLetterData): Promise<Blob> => {
+    const bodyParagraphs = (data.paragraphs || []).map((text) =>
+        new Paragraph({
+            children: [
+                new TextRun({
+                    text: text,
+                    size: 24, // 12pt
+                    font: "Calibri",
+                }),
+            ],
+            spacing: { after: 240 }, // Space between paragraphs
+        })
+    );
+
+    const doc = new Document({
+        sections: [
+            {
+                properties: {
+                    page: {
+                        margin: {
+                            top: 1440,  // 1 inch
+                            right: 1440,
+                            bottom: 1440,
+                            left: 1440,
+                        },
+                    },
+                },
+                children: [
+                    // Date (right-aligned)
+                    new Paragraph({
+                        children: [
+                            new TextRun({
+                                text: data.date,
+                                size: 24,
+                                font: "Calibri",
+                            }),
+                        ],
+                        alignment: AlignmentType.RIGHT,
+                        spacing: { after: 480 }, // Blank line space after date
+                    }),
+
+                    // Greeting
+                    new Paragraph({
+                        children: [
+                            new TextRun({
+                                text: data.greeting,
+                                size: 24,
+                                font: "Calibri",
+                            }),
+                        ],
+                        spacing: { after: 240 },
+                    }),
+
+                    // Body paragraphs
+                    ...bodyParagraphs,
+
+                    // Closing
+                    new Paragraph({
+                        children: [
+                            new TextRun({
+                                text: data.closing,
+                                size: 24,
+                                font: "Calibri",
+                            }),
+                        ],
+                        spacing: { before: 240, after: 120 },
+                    }),
+
+                    // Applicant name
+                    new Paragraph({
+                        children: [
+                            new TextRun({
+                                text: data.applicantName,
+                                size: 24,
+                                font: "Calibri",
+                                bold: true,
+                            }),
+                        ],
+                    }),
+                ],
+            },
+        ],
+    });
+
+    return await Packer.toBlob(doc);
+};
+

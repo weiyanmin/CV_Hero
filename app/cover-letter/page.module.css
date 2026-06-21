@@ -1,0 +1,241 @@
+/* Cover Letter Page — Dark Futuristic Theme */
+
+.pageWrapper {
+    max-width: 700px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Step Indicator */
+.stepIndicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 2.5rem;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.stepDot {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    border: 2px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    transition: all 300ms ease;
+    flex-shrink: 0;
+}
+
+.stepDot.active {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-bg);
+    box-shadow: 0 0 16px rgba(0, 212, 255, 0.3);
+}
+
+.stepDot.completed {
+    border-color: var(--color-success);
+    background: var(--color-success);
+    color: white;
+}
+
+.stepLabel {
+    position: absolute;
+    top: calc(100% + 6px);
+    font-size: 0.65rem;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    transition: color 300ms ease;
+}
+
+.stepLabel.active {
+    color: var(--color-primary);
+}
+
+.stepLabel.completed {
+    color: var(--color-success);
+}
+
+.stepDotWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stepLine {
+    width: 80px;
+    height: 2px;
+    background: var(--color-border);
+    transition: background 300ms ease;
+}
+
+.stepLine.active {
+    background: var(--color-primary);
+}
+
+.stepLine.completed {
+    background: var(--color-success);
+}
+
+/* Section Titles */
+.sectionTitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sectionSubtitle {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1.5rem;
+    font-family: var(--font-mono);
+}
+
+/* Back Button */
+.backButton {
+    background: transparent;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    padding: 0.5rem 0;
+    margin-bottom: 1.25rem;
+    transition: color var(--transition-fast);
+}
+
+.backButton:hover {
+    color: var(--color-primary);
+}
+
+/* Loading State */
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    gap: 1.5rem;
+    text-align: center;
+}
+
+.loadingSpinner {
+    color: var(--color-primary);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loadingText {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.loadingSubtext {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+}
+
+/* Error */
+.errorBox {
+    margin-top: 1.25rem;
+    color: var(--color-error);
+    background: rgba(239, 68, 68, 0.1);
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    text-align: center;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    font-family: var(--font-mono);
+}
+
+/* Generate button */
+.generateBtn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .stepLine {
+        width: 40px;
+    }
+
+    .stepDot {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
+    }
+
+    .stepLabel {
+        font-size: 0.6rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .stepLine {
+        width: 28px;
+    }
+
+    .stepDot {
+        width: 28px;
+        height: 28px;
+        font-size: 0.7rem;
+    }
+
+    .stepLabel {
+        display: none;
+    }
+}

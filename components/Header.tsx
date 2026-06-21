@@ -1,6 +1,16 @@
-import { } from 'lucide-react';
+"use client";
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function Header() {
+    const pathname = usePathname();
+
+    const navLinks = [
+        { href: '/', label: 'CV Optimizer' },
+        { href: '/cover-letter', label: 'Cover Letter' },
+    ];
+
     return (
         <header style={{
             position: 'fixed',
@@ -29,7 +39,9 @@ export default function Header() {
                             letterSpacing: '-0.02em',
                             lineHeight: '1.2'
                         }}>
-                            CV Hero
+                            <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>
+                                CV Hero
+                            </Link>
                         </h1>
                         <span style={{
                             fontSize: '0.7rem',
@@ -42,14 +54,40 @@ export default function Header() {
                         </span>
                     </div>
                 </div>
-                <nav style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <span style={{
-                        fontSize: '0.75rem',
-                        color: 'var(--color-text-muted)',
-                        fontFamily: 'var(--font-mono)'
-                    }}>
-                        v1.0
-                    </span>
+                <nav style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                    {navLinks.map((link) => {
+                        const isActive = pathname === link.href;
+                        return (
+                            <Link
+                                key={link.href}
+                                href={link.href}
+                                style={{
+                                    fontSize: '0.8rem',
+                                    fontWeight: '600',
+                                    fontFamily: 'var(--font-sans)',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.05em',
+                                    textDecoration: 'none',
+                                    color: isActive ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                                    borderBottom: isActive ? '2px solid var(--color-primary)' : '2px solid transparent',
+                                    paddingBottom: '4px',
+                                    transition: 'color 250ms ease, border-color 250ms ease',
+                                }}
+                                onMouseEnter={(e) => {
+                                    if (!isActive) {
+                                        e.currentTarget.style.color = 'var(--color-text)';
+                                    }
+                                }}
+                                onMouseLeave={(e) => {
+                                    if (!isActive) {
+                                        e.currentTarget.style.color = 'var(--color-text-muted)';
+                                    }
+                                }}
+                            >
+                                {link.label}
+                            </Link>
+                        );
+                    })}
                 </nav>
             </div>
         </header>
